@@ -1,0 +1,19 @@
+.extend-input:focus {
+    background-color: transparent;
+    box-shadow: none;
+    outline: none;
+}
+
+.extend-wrapper-focus {
+    border-width: 2px !important;
+    border-color: #b7e2ff !important;
+}
+
+.extend-before-elements {
+    width: 16px;
+    margin-right: 10px;
+}
+
+.extend-after-elements {
+    width: 16px;
+}
