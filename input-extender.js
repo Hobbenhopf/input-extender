@@ -67,8 +67,12 @@ var $extender = (function () {
 
         if (elementsBefore.length > 0) {
             $elementsBefore = $('<span class="extend-before-elements-js"></span>');
-            if (typeof config.beforeElements.class === "string"){
+            if (typeof config.beforeElements.class === "string") {
                 $elementsBefore.addClass(config.beforeElements.class);
+            } else {
+                $.each(config.beforeElements.class, function (index, value) {
+                    $elementsBefore.addClass(value);
+                });
             }
 
             $elementsBefore.appendTo($wrapper);
@@ -80,8 +84,12 @@ var $extender = (function () {
 
         if (elementsAfter.length > 0) {
             $elementsAfter = $('<span class="extend-after-elements-js"></span>');
-            if (typeof config.afterElements.class === "string"){
+            if (typeof config.afterElements.class === "string") {
                 $elementsAfter.addClass(config.afterElements.class);
+            } else {
+                $.each(config.beforeElements.class, function (index, value) {
+                    $elementsBefore.addClass(value);
+                });
             }
             $elementsAfter.appendTo($wrapper);
         }
@@ -126,7 +134,7 @@ var $extender = (function () {
      * 
      * Helps to modify the wrapper inner width, to reduces side effects which would lead to a linebreak before the input field.
      */
-    function beforeResize(){
+    function beforeResize() {
         $inputField.css("width", $inputField.width() - config.inputShrinkWidth);
     }
 
@@ -142,10 +150,10 @@ var $extender = (function () {
         }, config.resizeDelay);
     }
 
-    $( window ).resize(function() {
-        oldWidth =  $wrapper.parent().width();
+    $(window).resize(function () {
+        oldWidth = $wrapper.parent().width();
         resize();
-      });
+    });
 
     return {
         /**
@@ -169,13 +177,13 @@ var $extender = (function () {
             restyle();
             resize();
 
-            $inputField.focus(function(){
+            $inputField.focus(function () {
                 beforeResize();
                 $wrapper.addClass("extend-wrapper-focus");
                 resize();
             });
 
-            $inputField.blur(function(){
+            $inputField.blur(function () {
                 $wrapper.removeClass("extend-wrapper-focus");
                 resize();
             });
