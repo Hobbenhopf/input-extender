@@ -1,8 +1,8 @@
 var $extender = (function () {
     var defaultConfiguration = {
         resizeDelay: 0, // delay before the resize actually triggers in milliseconds
-        initialInputShrinkWidth: 42,  // the number of pixels the width of the input field is decreased during the extension
-        inputShrinkWidth: 4, // the number of pixels the width of the input field is decreased in the beforeResize Function
+        estimatedInputWidthReduction: 42,  // the estimated number of pixels the width of the input field is decreased during the extension
+        inputWidthReductionOnFocus: 4, // the number of pixels the width of the input field is decreased on the focus event
 
         beforeElements: {
             class: "" // the css class(es) added to the beforeElements span 
@@ -79,8 +79,8 @@ var $extender = (function () {
         }
 
         oldWidth = $inputField.outerWidth();
-        $inputField.detach().appendTo($wrapper);
-        $inputField.css("width", $inputField.width() - config.initialInputShrinkWidth);
+
+        $inputField.detach().css("width", oldWidth - config.estimatedInputWidthReduction).appendTo($wrapper);
 
         if (elementsAfter.length > 0) {
             $elementsAfter = $('<span class="extend-after-elements-js"></span>');
@@ -134,26 +134,87 @@ var $extender = (function () {
      * 
      * Helps to modify the wrapper inner width, to reduces side effects which would lead to a linebreak before the input field.
      */
-    function beforeResize() {
-        $inputField.css("width", $inputField.width() - config.inputShrinkWidth);
+    function resizeBeforeFocus() {
+        $inputField.css("width", $inputField.width() - config.inputWidthReductionOnFocus);
     }
 
     /**
      * Resizes the input field in order to fit all elements in the same space as the input field was.
      */
     function resize() {
-        setTimeout(function () {
+        delayHelper.throttle(function () {
             $wrapper.css("width", oldWidth);
 
             var newInputWidth = $wrapper.width() - ($elementsBefore.outerWidth(true) || 0) - ($elementsAfter.outerWidth(true) || 0);
             $inputField.css("width", newInputWidth);
         }, config.resizeDelay);
+
     }
 
     $(window).resize(function () {
         oldWidth = $wrapper.parent().width();
+        $inputField.css("width", oldWidth - config.estimatedInputWidthReduction);
         resize();
     });
+
+
+    var delayHelper = {
+        /**
+         * Implements a javascript debounce function.
+         * 
+         * This will execute the delayedFunction only if during the given delay no other debounce call is executed.
+         * @param {function} delayedFunction the function to be delayed
+         * @param {number} delay the delay in milliseconds to be waited without any other debounce call 
+         */
+        debounce: function (delayedFunction, delay) {
+            var timer = null;
+
+            return function () {
+                var context = this, args = arguments;
+                clearTimeout(timer);
+
+                timer = setTimeout(function () {
+                    delayedFunction.apply(context, args);
+                }, delay);
+            };
+        },
+
+        /**
+         * Implements a javascript throttle function.
+         * 
+         * This will execute the delayedFunction only after the time defined by delay passed.
+         * The delayed function is executed at most every x milliseconds (x = delay).
+         * 
+         * The first invocation of delayedFunction is the very moment the throttle is called (the first time).
+         * 
+         * @param {function} delayedFunction the function to be delayed
+         * @param {number} delay the delay in milliseconds to be waited without any other debounce call 
+         * @param {function} scope
+         */
+        throttle: function (delayedFunction, delay, scope) {
+            delay || (delay = 250);
+            var lastExecution;
+            var timer;
+
+            return function () {
+                var context = scope || this;
+                var now = Date.now();
+                var args = arguments;
+
+                if (last && now < lastExecution + delay) {
+                    // hold on to it
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        lastExecution = now;
+                        delayedFunction.apply(context, args);
+                    }, delay);
+                } else {
+                    lastExecution = now;
+                    delayedFunction.apply(context, args);
+                }
+            };
+        }
+    };
 
     return {
         /**
@@ -178,7 +239,7 @@ var $extender = (function () {
             resize();
 
             $inputField.focus(function () {
-                beforeResize();
+                resizeBeforeFocus();
                 $wrapper.addClass("extend-wrapper-focus");
                 resize();
             });

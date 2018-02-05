@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
 
-        <link rel="stylesheet" href="../input-extender.css">
+    <link rel="stylesheet" href="../input-extender.css">
 
     <title>Hello, world!</title>
 </head>
@@ -58,8 +58,9 @@
 
     <script>
         $extender.init($("#inputAfter"), {
-            resizeDelay: 150,
-            inputShrinkWidth: 4,
+            resizeDelay: 0,
+            inputWidthReductionOnFocus: 4,
+            estimatedInputWidthReduction: 155,
             beforeElements: {
                 class: ["extend-before-elements", "test-class-without-style"]
             },
@@ -70,6 +71,10 @@
         $extender.addElementBefore($('<i class="fas fa-search"></i>'));
         $extender.addElementAfter($(' <a href="#" style="margin-right: 8px">Hello There</a>'));
         $extender.addElementAfter($('<i class="fas fa-snowflake fa-spin"></i>'));
-        $extender.extend();
+
+        $(document).ready(function () {
+            $extender.extend();
+        });
+
     </script>
 </body>

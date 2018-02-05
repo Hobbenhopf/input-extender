@@ -9,8 +9,8 @@ Right now there are only a few configuration options.
 ```
  var config = {
     resizeDelay: 0, // delay before the resize actually triggers in milliseconds
-    initialInputShrinkWidth: 42,  // the number of pixels the width of the input field is decreased during the extension
-    inputShrinkWidth: 4, // the number of pixels the width of the input field is decreased in the beforeResize Function
+    estimatedInputWidthReduction: 42,  // the estimated number of pixels the width of the input field is decreased during the extension
+    inputWidthReductionOnFocus: 4, // the number of pixels the width of the input field is decreased on the focus event
 
     beforeElements: {
         class: "" // the css class(es) added to the beforeElements span 
