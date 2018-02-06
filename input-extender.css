@@ -4,16 +4,21 @@
     outline: none;
 }
 
+
 .extend-wrapper-focus {
     border-width: 2px !important;
     border-color: #b7e2ff !important;
 }
 
+.extend-wrapper {
+    display: inline-block;
+}
+
 .extend-before-elements {
-    width: 16px;
     margin-right: 10px;
+    display: inline-block;
 }
 
 .extend-after-elements {
-    width: 16px;
+    display: inline-block;
 }

@@ -62,11 +62,13 @@ var $extender = (function () {
      * Creates the wrapping element and moves the input field inside the wrapper.
      */
     function createWrapper() {
+        oldWidth = $inputField.outerWidth();
+
         $wrapper = $('<span class="extend-wrapper extend-wrapper-js"></span>');
         $wrapper.insertBefore($inputField);
 
         if (elementsBefore.length > 0) {
-            $elementsBefore = $('<span class="extend-before-elements-js"></span>');
+            $elementsBefore = $('<span class="extend-before-elements extend-before-elements-js"></span>');
             if (typeof config.beforeElements.class === "string") {
                 $elementsBefore.addClass(config.beforeElements.class);
             } else {
@@ -78,12 +80,10 @@ var $extender = (function () {
             $elementsBefore.appendTo($wrapper);
         }
 
-        oldWidth = $inputField.outerWidth();
-
         $inputField.detach().css("width", oldWidth - config.estimatedInputWidthReduction).appendTo($wrapper);
 
         if (elementsAfter.length > 0) {
-            $elementsAfter = $('<span class="extend-after-elements-js"></span>');
+            $elementsAfter = $('<span class="extend-after-elements extend-after-elements-js"></span>');
             if (typeof config.afterElements.class === "string") {
                 $elementsAfter.addClass(config.afterElements.class);
             } else {
@@ -142,21 +142,11 @@ var $extender = (function () {
      * Resizes the input field in order to fit all elements in the same space as the input field was.
      */
     function resize() {
-        delayHelper.throttle(function () {
-            $wrapper.css("width", oldWidth);
+        $wrapper.css("width", oldWidth);
 
-            var newInputWidth = $wrapper.width() - ($elementsBefore.outerWidth(true) || 0) - ($elementsAfter.outerWidth(true) || 0);
-            $inputField.css("width", newInputWidth);
-        }, config.resizeDelay);
-
+        var newInputWidth = $wrapper.width() - ($elementsBefore.outerWidth(true) || 0) - ($elementsAfter.outerWidth(true) || 0);
+        $inputField.css("width", newInputWidth);
     }
-
-    $(window).resize(function () {
-        oldWidth = $wrapper.parent().width();
-        $inputField.css("width", oldWidth - config.estimatedInputWidthReduction);
-        resize();
-    });
-
 
     var delayHelper = {
         /**
@@ -201,7 +191,7 @@ var $extender = (function () {
                 var now = Date.now();
                 var args = arguments;
 
-                if (last && now < lastExecution + delay) {
+                if (lastExecution && now < lastExecution + delay) {
                     // hold on to it
                     clearTimeout(timer);
                     timer = setTimeout(function () {
@@ -225,6 +215,12 @@ var $extender = (function () {
         init: function ($jqueryInputField, options) {
             $inputField = $jqueryInputField;
             config = $.extend({}, defaultConfiguration, options);
+
+            $(window).resize(delayHelper.throttle(function () {
+                oldWidth = $wrapper.parent().width();
+                $inputField.css("width", oldWidth - config.estimatedInputWidthReduction);
+                resize();
+            }, config.resizeDelay));
         },
 
         /**
@@ -236,7 +232,7 @@ var $extender = (function () {
             createWrapper();
             addElements();
             restyle();
-            resize();
+            this.resize();
 
             $inputField.focus(function () {
                 resizeBeforeFocus();
@@ -260,6 +256,11 @@ var $extender = (function () {
             if (exists($jqueryElement)) {
                 elementsAfter.push($jqueryElement);
             }
+        },
+
+        resize: function(){
+            this.throttledResize || (this.throttledResize = delayHelper.throttle(resize, config.delay));
+            this.throttledResize();
         }
     }
 })();
